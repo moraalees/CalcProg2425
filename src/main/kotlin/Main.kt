@@ -2,55 +2,27 @@ package es.prog2425.calc2425
 
 import es.prog2425.calc2425.ui.Consola
 import es.prog2425.calc2425.app.Calculadora
+import java.io.File
 
 /*
+model: Logica del negocio (Seguros, Usuarios, etc)
+data: Repositorios del model
+ui: (Consola, IEntradaSalida)
+app: (GestorMenu, Implementa UI (private val ui: IEntradaSalida, no Consola))
+ */
+
+
 fun main() {
-    val scanner = Scanner(System.`in`)
+    val rutaLog = "src/main/kotlin/log"
+    val archivo = File(rutaLog)
 
-    println("Introduce el primer número:")
-    val numero1 = scanner.nextDouble()
-    println("Introduce el operador (+, -, *, /):")
-    val operador = scanner.next()[0]
-    println("Introduce el segundo número:")
-    val numero2 = scanner.nextDouble()
+    val estaCreado: Boolean = archivo.mkdirs()
 
-    val resultado = when (operador) {
-        '+' -> numero1 + numero2
-        '-' -> numero1 - numero2
-        '*' -> numero1 * numero2
-        '/' -> numero1 / numero2
-        else -> "Operador no válido"
+    if (estaCreado){
+        println("$rutaLog se ha creado.")
+    } else {
+        println("$rutaLog ya estaba creada.")
     }
 
-    println("Resultado: $resultado")
-}
-*/
-
-fun main() {
     Calculadora(Consola()).iniciar()
 }
-
-
-/*
-import java.util.*
-
-fun main() {
-    val scanner = Scanner(System.`in`)
-
-    val numLineas = scanner.nextInt()
-    scanner.nextLine() // Limpia el salto de línea pendiente
-
-    var resultado = 1
-
-    for (i in 1..numLineas) {
-        var suma = 0
-        while (scanner.hasNextInt()) {
-            suma += scanner.nextInt()
-        }
-        resultado *= suma
-        if (scanner.hasNextLine()) scanner.nextLine() // pasar a la siguiente línea
-    }
-
-    println(resultado)
-}
-*/

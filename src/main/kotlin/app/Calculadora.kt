@@ -5,17 +5,10 @@ import es.prog2425.calc2425.model.Operadores
 
 class Calculadora(private val ui: IEntradaSalida) {
 
-    private fun pedirNumero(msj: String, msjError: String = "Número no válido!"): Double {
-        try {
-            val numero = ui.pedirDouble(msj)
+    private fun pedirNumero(msj: String, msjError: String = "Número no válido!"): Double? {
+        val numero = ui.pedirDouble(msj)
 
-            if (numero != null){
-                return numero
-            }
-        } catch (e : InfoCalcException) {
-            ui.mostrarError(msjError + e.message)
-        }
-        return 0.0
+        return numero
     }
 
     private fun pedirInfo() = Triple(
@@ -37,8 +30,12 @@ class Calculadora(private val ui: IEntradaSalida) {
             try {
                 ui.limpiarPantalla()
                 val (numero1, operador, numero2) = pedirInfo()
-                val resultado = realizarCalculo(numero1, operador, numero2)
-                ui.mostrar("Resultado: %.2f".format(resultado))
+                if (numero1 == null || numero2 == null){
+                    ui.mostrarError("La entrada es inválida")
+                } else {
+                    val resultado = realizarCalculo(numero1, operador, numero2)
+                    ui.mostrar("Resultado: %.2f".format(resultado))
+                }
             } catch (e: NumberFormatException) {
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
             }
