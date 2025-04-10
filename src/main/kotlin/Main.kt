@@ -2,6 +2,7 @@ package es.prog2425.calc2425
 
 import es.prog2425.calc2425.ui.Consola
 import es.prog2425.calc2425.app.Calculadora
+import es.prog2425.calc2425.ui.IEntradaSalida
 import java.io.File
 
 /*
@@ -13,16 +14,40 @@ app: (GestorMenu, Implementa UI (private val ui: IEntradaSalida, no Consola))
 
 
 fun main() {
+    val ui: IEntradaSalida = Consola()
     val rutaLog = "src/main/kotlin/log"
+    var entrada = readln().trim()
     val archivo = File(rutaLog)
 
-    val estaCreado: Boolean = archivo.mkdirs()
+    if (entrada.isEmpty()){
+        val estaCreado: Boolean = archivo.mkdirs()
 
-    if (estaCreado){
-        println("$rutaLog se ha creado.")
+        if (estaCreado){
+            println("El directorio en $rutaLog se ha creado.")
+        } else {
+            println("El directorio en $rutaLog ya estaba creado.")
+        }
+
+        val archivosTxt = archivo.listFiles { file -> file.name.endsWith(".txt") }
+
+        if (archivosTxt.isNullOrEmpty()){
+            println("No existen ficheros de Log.")
+        } else {
+            val archivoReciente = archivosTxt.first()
+            println("Abriendo archivo: ${archivoReciente.name}")
+            val contenido = archivoReciente.readText()
+            println(contenido)
+        }
+
     } else {
-        println("$rutaLog ya estaba creada.")
-    }
+        val entradas = entrada.split(' ')
 
-    Calculadora(Consola()).iniciar()
+        if (entradas.size == 1) {
+            println("Hola")
+        } else if (entradas.size == 4) {
+            println("Hola")
+        } else {
+            ui.mostrarError("Entrada inválida!")
+        }
+    }
 }
