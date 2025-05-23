@@ -1,9 +1,8 @@
 package es.prog2425.calc2425
 
 import es.prog2425.calc2425.ui.Consola
-import es.prog2425.calc2425.app.Calculadora
+import es.prog2425.calc2425.data.CreadorLog
 import es.prog2425.calc2425.ui.IEntradaSalida
-import java.io.File
 
 /*
 model: Logica del negocio (Seguros, Usuarios, etc)
@@ -16,38 +15,32 @@ app: (GestorMenu, Implementa UI (private val ui: IEntradaSalida, no Consola))
 fun main() {
     val ui: IEntradaSalida = Consola()
     val rutaLog = "src/main/kotlin/log"
-    var entrada = readln().trim()
-    val archivo = File(rutaLog)
+    val entrada = readln().trim()
 
-    if (entrada.isEmpty()){
-        val estaCreado: Boolean = archivo.mkdirs()
+    if (entrada.isEmpty()) {
+        val logHandler = CreadorLog(rutaLog)
 
-        if (estaCreado){
-            println("El directorio en $rutaLog se ha creado.")
+        val creado = logHandler.crearDirectorioSiNoExiste()
+        if (creado) {
+            ui.mostrar("El directorio en $rutaLog se ha creado.")
         } else {
-            println("El directorio en $rutaLog ya estaba creado.")
+            ui.mostrar("El directorio en $rutaLog ya estaba creado.")
         }
 
-        val archivosTxt = archivo.listFiles { file -> file.name.endsWith(".txt") }
-
-        if (archivosTxt.isNullOrEmpty()){
-            println("No existen ficheros de Log.")
+        val archivo = logHandler.obtenerArchivoReciente()
+        if (archivo == null) {
+            ui.mostrar("No existen ficheros de Log.")
         } else {
-            val archivoReciente = archivosTxt.first()
-            println("Abriendo archivo: ${archivoReciente.name}")
-            val contenido = archivoReciente.readText()
-            println(contenido)
+            ui.mostrar("Abriendo archivo: ${archivo.name}")
+            val contenido = logHandler.leerContenido(archivo)
+            ui.mostrar(contenido)
         }
 
     } else {
         val entradas = entrada.split(' ')
-
-        if (entradas.size == 1) {
-            println("Hola")
-        } else if (entradas.size == 4) {
-            println("Hola")
-        } else {
-            ui.mostrarError("Entrada inválida!")
+        when (entradas.size) {
+            1, 4 -> ui.mostrar("Hola")
+            else -> ui.mostrarError("Entrada inválida!")
         }
     }
 }
