@@ -1,46 +1,57 @@
 package es.prog2425.calc2425
 
+import es.prog2425.calc2425.app.Calculadora
+import es.prog2425.calc2425.app.GestorLogs
 import es.prog2425.calc2425.ui.Consola
 import es.prog2425.calc2425.data.CreadorLog
+import es.prog2425.calc2425.data.ICreadorLog
+import es.prog2425.calc2425.data.RegistroCalculo
+import es.prog2425.calc2425.service.EjecutadorDeCalculo
+import es.prog2425.calc2425.service.ValidadorCalculo
 import es.prog2425.calc2425.ui.IEntradaSalida
 
-/*
-model: Logica del negocio (Seguros, Usuarios, etc)
-data: Repositorios del model
-ui: (Consola, IEntradaSalida)
-app: (GestorMenu, Implementa UI (private val ui: IEntradaSalida, no Consola))
- */
 
-
-fun main() {
+fun main(args: Array<String>) {
     val ui: IEntradaSalida = Consola()
-    val rutaLog = "src/main/kotlin/log"
-    val entrada = readln().trim()
 
-    if (entrada.isEmpty()) {
-        val logHandler = CreadorLog(rutaLog)
-
-        val creado = logHandler.crearDirectorioSiNoExiste()
-        if (creado) {
-            ui.mostrar("El directorio en $rutaLog se ha creado.")
-        } else {
-            ui.mostrar("El directorio en $rutaLog ya estaba creado.")
+    when (args.size) {
+        0 -> {
+            //MODO DE CALCULADORA
+            val calculadora = Calculadora(ui)
+            calculadora.iniciar()
         }
 
-        val archivo = logHandler.obtenerArchivoReciente()
-        if (archivo == null) {
-            ui.mostrar("No existen ficheros de Log.")
-        } else {
-            ui.mostrar("Abriendo archivo: ${archivo.name}")
-            val contenido = logHandler.leerContenido(archivo)
-            ui.mostrar(contenido)
+        1 -> {
+            // MODO LOGS
+            val creadorLog: ICreadorLog = CreadorLog(args.first())
+            val gestor = GestorLogs(creadorLog, ui)
+            gestor.procesar()
         }
 
-    } else {
-        val entradas = entrada.split(' ')
-        when (entradas.size) {
-            1, 4 -> ui.mostrar("Hola")
-            else -> ui.mostrarError("Entrada inválida!")
+        4 -> {
+            val validador = ValidadorCalculo()
+            val entrada = validador.validar(args)
+
+            if (entrada == null) {
+                ui.mostrarError("Argumentos inválidos para el cálculo.")
+                return
+            }
+
+            try {
+                val resultado = EjecutadorDeCalculo().calcular(entrada)
+                ui.mostrar("Resultado: $resultado")
+
+                val creadorLog: ICreadorLog = CreadorLog(entrada.ruta)
+                val registrador = RegistroCalculo(creadorLog)
+                registrador.guardar(entrada, resultado)
+
+            } catch (e: ArithmeticException) {
+                ui.mostrarError(e.message ?: "Error en el cálculo.")
+            }
+        }
+
+        else -> {
+            ui.mostrarError("Número de argumentos inválido.")
         }
     }
 }
